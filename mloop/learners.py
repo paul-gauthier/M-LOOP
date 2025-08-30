@@ -12,6 +12,7 @@ import random
 import scipy.optimize as so
 import logging
 import datetime
+import time
 import os
 import mloop.utilities as mlu
 import multiprocessing as mp
@@ -2401,8 +2402,10 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
                 self.fit_gaussian_process()
                 # Compute and log predicted best during the run, and persist to archive.
                 try:
+                    _t0 = time.perf_counter()
                     self.find_global_minima()
-                    self.log.info('Predicted best params: %s, predicted cost: %s', self.predicted_best_parameters, self.predicted_best_cost)
+                    _elapsed = time.perf_counter() - _t0
+                    self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', self.predicted_best_parameters, self.predicted_best_cost, _elapsed)
                 except Exception as e:
                     # Be resilient: prediction shouldn't break the optimization loop.
                     self.log.debug('Could not compute predicted global minima this cycle: %r', e)
@@ -2422,7 +2425,10 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
                 # There are new parameters, get them.
                 self.get_params_and_costs()
             self.fit_gaussian_process()
+            _t0 = time.perf_counter()
             self.find_global_minima()
+            _elapsed = time.perf_counter() - _t0
+            self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', self.predicted_best_parameters, self.predicted_best_cost, _elapsed)
             end_dict.update({'predicted_best_parameters':self.predicted_best_parameters,
                              'predicted_best_cost':self.predicted_best_cost,
                              'predicted_best_uncertainty':self.predicted_best_uncertainty})
