@@ -2399,6 +2399,14 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
                 #self.log.debug('Gaussian process learner reading costs')
                 self.get_params_and_costs()
                 self.fit_gaussian_process()
+                # Compute and log predicted best during the run, and persist to archive.
+                try:
+                    self.find_global_minima()
+                    self.log.info('Predicted best params: %s, predicted cost: %s', self.predicted_best_parameters, self.predicted_best_cost)
+                except Exception as e:
+                    # Be resilient: prediction shouldn't break the optimization loop.
+                    self.log.debug('Could not compute predicted global minima this cycle: %r', e)
+                self.save_archive()
                 for _ in range(self.generation_num):
                     self.log.debug('Gaussian process learner generating parameter:'+ str(self.params_count+1))
                     next_params = self.find_next_parameters()
