@@ -1101,7 +1101,7 @@ class MachineLearner(Learner):
         all_params (array): Array containing all parameters sent to learner.
         all_costs (array): Array containing all costs sent to learner.
         all_uncers (array): Array containing all uncertainties sent to learner.
-        scaled_costs (array): Array containing all the costs scaled to have zero mean and 
+        scaled_costs (array): Array containing all the costs scaled to have zero mean and
             a standard deviation of 1. Needed for training the learner.
         bad_run_indexs (list): list of indexes to all runs that were marked as bad.
         best_cost (float): Minimum received cost, updated during execution.
@@ -1567,7 +1567,7 @@ class MachineLearner(Learner):
         `scipy.optimize.minimize()` (which is used internally here) can struggle
         if the numbers are too small or too large. Using scaled parameters and
         figures of merit brings the numbers closer to ~1, which can improve the
-        behavior of `scipy.optimize.minimize()`. 
+        behavior of `scipy.optimize.minimize()`.
 
         Args:
             scaled_figure_of_merit_function (function): This should be a
@@ -1983,12 +1983,12 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
         call this method with `inverse` set to `False`. To perform the inverse
         transformation, namely to transform length scales from scaled units to
         real/unscaled units, call this method with `inverse` set to `True`.
-        
+
         Notably length scales should be scaled, but not offset, when they are
         transformed. For this reason, they should not simply be passed through
         `self.params_scaler.transform()` and instead should be passed through
         this method.
-        
+
         Although `length_scales` can be a fingle float, this method always
         returns a 1D array because the scaling factors aren't generally the same
         for all of the parameters. This implies that transforming a float then
@@ -2107,7 +2107,7 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
             )
             self.log.error(msg)
             raise ValueError(msg)
-        
+
         # Use self._transform_length_scales() to transform the limits.
         transformed_lower_bounds = self._transform_length_scales(
             lower_bounds,
@@ -2120,7 +2120,7 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
         transformed_length_scale_bounds = np.transpose(
             [transformed_lower_bounds, transformed_upper_bounds],
         )
-        
+
         return transformed_length_scale_bounds
 
     def _check_length_scale_bounds(self):
@@ -2301,7 +2301,7 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
     def predict_biased_cost(self, params, perform_scaling=True):
         '''
         Predict the biased cost at the given parameters.
-        
+
         The biased cost is a weighted sum of the predicted cost and the
         uncertainty of the prediced cost. In particular, the bias function is:
             `biased_cost = cost_bias * pred_cost - uncer_bias * pred_uncer`
@@ -2384,20 +2384,20 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
 
     def run(self):
         '''
-        Starts running the Gaussian process learner. When the new parameters event is triggered, reads the cost information 
-        provided and updates the Gaussian process with the information. Then searches the Gaussian process for new optimal 
+        Starts running the Gaussian process learner. When the new parameters event is triggered, reads the cost information
+        provided and updates the Gaussian process with the information. Then searches the Gaussian process for new optimal
         parameters to test based on the biased cost. Parameters to test next are put on the output parameters queue.
         '''
         #logging to the main log file from a process (as apposed to a thread) in cpython is currently buggy on windows and/or python 2.7
         #current solution is to only log to the console for warning and above from a process
-        self.log = mp.log_to_stderr(logging.WARNING)
+        self.log = mp.log_to_stderr(logging.DEBUG)
 
         try:
             while not self.end_event.is_set():
-                #self.log.debug('Learner waiting for new params event')
+                self.log.debug('Learner waiting for new params event')
                 self.save_archive()
                 self.wait_for_new_params_event()
-                #self.log.debug('Gaussian process learner reading costs')
+                self.log.debug('Gaussian process learner reading costs')
                 self.get_params_and_costs()
                 self.fit_gaussian_process()
                 # Compute and log predicted best during the run, and persist to archive.
@@ -2514,7 +2514,7 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
             cost = cost[0, 0]  # Extract from 2D array.
         else:
             cost = scaled_cost[0]  # Extract from 1D array.
-        
+
         # Un-scale the uncertainty if set to do so.
         if return_uncertainty:
             if perform_scaling:
@@ -3176,7 +3176,7 @@ class NeuralNetLearner(MachineLearner, mp.Process):
                 with `updated_hyperparameters` set to `True` then the list will
                 also include the optimal values for the regularization
                 coefficient determined during each hyperparameter fitting.
-        '''        
+        '''
         regularization_histories = []
         for net in self.neural_net:
             regularization_histories.append(net.regularization_history)
