@@ -2405,7 +2405,8 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
                     _t0 = time.perf_counter()
                     self.find_global_minima()
                     _elapsed = time.perf_counter() - _t0
-                    self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', self.predicted_best_parameters, self.predicted_best_cost, _elapsed)
+                    params_str = np.array2string(self.predicted_best_parameters, formatter={'float_kind': lambda x: '%7.3f' % x})
+                    self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', params_str, self.predicted_best_cost, _elapsed)
                 except Exception as e:
                     # Be resilient: prediction shouldn't break the optimization loop.
                     self.log.debug('Could not compute predicted global minima this cycle: %r', e)
@@ -2428,7 +2429,8 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
             _t0 = time.perf_counter()
             self.find_global_minima()
             _elapsed = time.perf_counter() - _t0
-            self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', self.predicted_best_parameters, self.predicted_best_cost, _elapsed)
+            params_str = np.array2string(self.predicted_best_parameters, formatter={'float_kind': lambda x: '%7.3f' % x})
+            self.log.info('Predicted best params: %s, predicted cost: %s (computed in %.3fs)', params_str, self.predicted_best_cost, _elapsed)
             end_dict.update({'predicted_best_parameters':self.predicted_best_parameters,
                              'predicted_best_cost':self.predicted_best_cost,
                              'predicted_best_uncertainty':self.predicted_best_uncertainty})
