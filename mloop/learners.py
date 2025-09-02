@@ -2380,6 +2380,16 @@ class GaussianProcessLearner(MachineLearner, mp.Process):
         # Convert the scaled parameters to real/unscaled units.
         next_params = self.params_scaler.inverse_transform([next_scaled_params])[0]
 
+        next_cost, next_uncer = self.predict_cost(
+            next_params,
+            return_uncertainty=True,
+        )
+        self.log.info(
+            "Suggesting params " + str(next_params)
+            + " with predicted cost: " + str(next_cost)
+            + " +/- " + str(next_uncer)
+        )
+
         return next_params
 
     def run(self):
@@ -3024,7 +3034,7 @@ class NeuralNetLearner(MachineLearner, mp.Process):
         self.params_count += 1
 
         # Return results.
-        self.log.debug(
+        self.log.info(
             "Suggesting params " + str(next_params) + " with predicted cost: "
             + str(next_cost)
         )
